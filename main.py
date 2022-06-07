@@ -1,13 +1,19 @@
+#!/bin/python3
+
+from warnings import filterwarnings
 from bleak import discover
 from asyncio import new_event_loop, set_event_loop, get_event_loop
 from time import sleep, time_ns
 from binascii import hexlify
 from json import dumps
-from sys import argv
+# from sys import argv
 from datetime import datetime
 
+# Ignores DeprecationWarning
+filterwarnings("ignore", category=DeprecationWarning)
+
 # Configure update duration (update after n seconds)
-UPDATE_DURATION = 1
+# UPDATE_DURATION = 5
 MIN_RSSI = -60
 AIRPODS_MANUFACTURER = 76
 AIRPODS_DATA_LENGTH = 54
@@ -126,21 +132,14 @@ def is_flipped(raw):
 
 
 def run():
-    output_file = argv[-1]
+    # output_file = argv[-1]
 
     while True:
         data = get_data()
 
         if data["status"] == 1:
-            json_data = dumps(data)
-            if len(argv) > 1:
-                f = open(output_file, "a")
-                f.write(json_data+"\n")
-                f.close()
-            else:
-                print(json_data)
-
-        sleep(UPDATE_DURATION)
+            print(f"R:{data['charge']['right']} L:{data['charge']['left']}")
+            break
 
 
 if __name__ == '__main__':
