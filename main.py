@@ -2,6 +2,7 @@
 
 from warnings import filterwarnings
 from bleak import discover
+from bleak.exc import BleakDBusError
 from asyncio import new_event_loop, set_event_loop, get_event_loop
 from time import sleep, time_ns
 from binascii import hexlify
@@ -63,9 +64,12 @@ def get_data_hex():
     new_loop = new_event_loop()
     set_event_loop(new_loop)
     loop = get_event_loop()
-    a = loop.run_until_complete(get_device())
-    loop.close()
-    return a
+    try:
+        a = loop.run_until_complete(get_device())
+        loop.close()
+        return a
+    except BleakDBusError:
+        return None
 
 
 # Getting data from hex string and converting it to dict(json)
@@ -139,6 +143,8 @@ def run():
 
         if data["status"] == 1:
             print(f"R:{data['charge']['right']} L:{data['charge']['left']}")
+            break
+        elif data["status"] == 0:
             break
 
 
